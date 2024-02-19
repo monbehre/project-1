@@ -90,6 +90,62 @@ head(highest_consump)
 
 -   (MONICA) The original paper aggregated the data to monthly means for each consumption type in `daily` and the `Price` column of `gas` to produce the following image:<br/> ![Original consumption by month graph](proj1fig1.png)<br/> Produce plots that show the same information that is presented in this plot. Your plots do not have to have the same colors or markings, but we should be able to use them to compare the trends for the three price variables.
 - (FIONA)  Write a predicate function that returns true if any value in vector is missing. Use this function to find columns with missing values in the `daily` column. Create a plot or table that shows how often patterns of missingness occur: are all of the missing values in the same rows or are the various columns missing data in different ways?
+```{r}
+#predicate function
+missing.in.vector <- function(x) {
+  any(is.na(x))
+}
+
+#applying a function across the whole df to see which columns have any missing values at all and printing that to a table
+columns_with_missing <- sapply(daily, missing.in.vector)
+result_table <- data.frame(Column = names(columns_with_missing), Missing = columns_with_missing)
+result_table
+```
+```{r}
+#now that we know which columns have missing values, we want to see how many missing values they each have to start figuring out what a possible trend could be.
+for (col in names(daily)[columns_with_missing]) {
+  missing_count <- sum(is.na(daily[[col]]))
+  cat("Column:", col, "- Missing Count:", missing_count, "\n")
+}
+```
+```{r}
+#now that we know how many missing values are in each column and can see that some columns have the same amount of missing values, we want to see if those columns have missing values in the same rows so that we can concretely say that there is a pattern.
+summarize_rows_with_missing <- function(column_name) {
+  rows_with_missing <- which(is.na(daily[[column_name]]))
+  if (length(rows_with_missing) > 0) {
+    cat("Column:", column_name, "- Rows with Missing Values:", 
+        min(rows_with_missing), "-", max(rows_with_missing), "\n")
+  }
+}
+
+for (col in names(daily)[columns_with_missing]) {
+  summarize_rows_with_missing(col)
+}
+```
+```{r}
+missing_columns <- names(daily)[columns_with_missing]
+
+# Calculate the proportion of missing values for each column
+missing_proportion <- colMeans(is.na(daily))
+
+# Ensure missing_proportion has the same length as missing_columns
+missing_proportion <- missing_proportion[missing_columns]
+
+# Create a data frame for ggplot
+plot_data <- data.frame(column = missing_columns, proportion = missing_proportion)
+
+# Create a ggplot bar plot
+ggplot(plot_data, aes(x = column, y = proportion, fill = proportion > 0)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("red", "white")) +
+  labs(title = "Proportion of Missing Values by Column",
+       x = "Columns",
+       y = "Proportion Missing") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8))
+```
+```
+After some sorting through data, we can see that there is indeed a pattern to which rows have missing values across these six columns. Columns price_industry_idx, price_households_idx and consumption_small all have 365 missing values in total and they all come from rows 1-365. Columns consumption_industry and consumption_power both only have 1 missing value and for both columns, that missing value is in row 2052. Lastly, column wages has 89 missing values in rows 1-89. To show this information graphically, we created a bar graph with the bars representing the proportion of missing values within each column. Here, we again see how there are columns that have the same propotion of missing values and therefore reinforcing that there are patterns within the data.
+```
 -   (FIONA) Limit the `gas` table to days where the price exceeded the yearly median. Use the concept of circular means to compute the average day of the year when price exceeds the yearly median price. The `yday` function will likely be useful here.
 
 ```{r}
