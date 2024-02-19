@@ -23,7 +23,7 @@ Your job in this project falls into two categories:
 
 ## Tasks
 
--   Load two files. To work in the console, use the `Session -> Set Working Directory -> To Source File Location`.
+-  DONE Load two files. To work in the console, use the `Session -> Set Working Directory -> To Source File Location`.
     -   Call the first table `daily`: "./data/natural_gas_germany_daily.csv"
     -   Call the second table `gas`: "./data/dutch_ttf_natural_gas.csv". Be sure to properly import the `Date` column.
     -   Demonstrate that these have been loaded by showing the number of rows and columns in each table.
@@ -41,7 +41,7 @@ nrow(gas)
 ncol(gas)
 ```
 
--   The data in `daily` are collected over days, with information on different types of natural gas consumption (`consumption_small`, `consumption_industry`, `consumption_power`). Provide summaries of typical values for each of these three types of consumption.
+-  DONE The data in `daily` are collected over days, with information on different types of natural gas consumption (`consumption_small`, `consumption_industry`, `consumption_power`). Provide summaries of typical values for each of these three types of consumption.
 
 ```{r}
 summary(daily$consumption_small)
@@ -49,7 +49,7 @@ summary(daily$consumption_industry)
 summary(daily$consumption_power)
 ```
 
--   Answer some questions about the data in `daily`:
+-   DONE Answer some questions about the data in `daily`:
 
     -   How many weeks of data are contained in the data set?
 
@@ -102,7 +102,7 @@ head(highest_consump)
     -   A plot of a summary measure such as a conditional mean
     -   A plot using `facet_wrap` or `facet_grid`
     -   A plot that shows seasonal effects before the crisis (September 2021 until October 2022)
--   Compare and contrast holidays and non-holidays for household energy consumption. Select 3 ways of comparing these groups. Provide at least one graph.
+-   DONE Compare and contrast holidays and non-holidays for household energy consumption. Select 3 ways of comparing these groups. Provide at least one graph.
 
 **3 ways of comparing these groups: (1) compare average daily energy consumption on holidays vs non-holidays; (2) compare distribution of household energy consumption on holidays vs non-holidays using barplot; (3) compare household energy consumption over time for holidays vs nonholidays**
 
