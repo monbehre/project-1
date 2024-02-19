@@ -125,16 +125,12 @@ for (col in names(daily)[columns_with_missing]) {
 ```{r}
 missing_columns <- names(daily)[columns_with_missing]
 
-# Calculate the proportion of missing values for each column
 missing_proportion <- colMeans(is.na(daily))
 
-# Ensure missing_proportion has the same length as missing_columns
 missing_proportion <- missing_proportion[missing_columns]
 
-# Create a data frame for ggplot
 plot_data <- data.frame(column = missing_columns, proportion = missing_proportion)
 
-# Create a ggplot bar plot
 ggplot(plot_data, aes(x = column, y = proportion, fill = proportion > 0)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_fill_manual(values = c("red", "white")) +
