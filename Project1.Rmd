@@ -126,6 +126,24 @@ ggplot(daily, aes(x = Date, y = consumption_small, color = factor(holiday))) +
 -   (KAELYN) According to the paper, the gas crisis occurred between September 2021 until October 2022. Compare this period with the periods before and after on household and industrial consumption. Write a paragraph explaining your findings.
 -   (KAELYN) Explore the [documentation for ggplot](https://ggplot2.tidyverse.org/). Select one geometery and one `stat_` function we have not used before or use an option to a previously used geometry/stat with a new option. Write a short paragraph explaining what the plots show.
 -  (FIONA) Investigate solar radiation's marginal distribution and also it's relationship with temperature.
+
+```{r}
+#to understand the data a bit more before making graphs
+summary(daily$solar_radiation)
+
+#marginal distribution shown through a kernel density plot
+ggplot(daily, aes(x = solar_radiation)) +
+  geom_density(fill = "blue", alpha = 0.7) +
+  labs(title = "Kernel Density Plot of Solar Radiation", x = "Solar Radiation") +
+  theme_minimal()
+
+#relationship to temperature shown through a scatter plot
+ggplot(daily, aes(x = solar_radiation, y = temperature)) +
+  geom_point(alpha = 0.7, color = "blue") +
+  labs(title = "Relationship between Solar Radiation and Temperature", 
+       x = "Solar Radiation", y = "Temperature") +
+  theme_minimal()
+```
 -   (XIAOHAN) Use `group_by` to summarize by a new feature of this data set not otherwise discussed in the tasks or objectives. What have you learned with these investigation?
 -   (TOGETHER) Based on your exploration of the data, suggest three questions that could be asked from these data or additional data that you can imagine. Be sure to explain why the previous plots or calculations indicates that this would be an interesting our useful exploration.
 -   (TOGETHER) Write an abstract for your project. Briefly explain what you did, what you found, and why a potential reader should be interested in your research.
