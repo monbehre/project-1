@@ -97,8 +97,8 @@ head(highest_consump)
 ## Objectives
 
 -   Produce at least five more figures. For each figure, write a brief caption explaining the plot and what you have learned from the plot. Each figure should attempt to provide new insight into the data set not included elsewhere
-    -   (XIAOHAN) A marginal distribution
-    -   (XIAOHAN) A joint distribution
+    -   A marginal distribution
+    -   A joint distribution
     -   A plot of a summary measure such as a conditional mean
     -   A plot using `facet_wrap` or `facet_grid`
     -   A plot that shows seasonal effects before the crisis (September 2021 until October 2022)
