@@ -8,6 +8,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
+library(cowplot)
 ```
 
 ## Overview
@@ -53,7 +54,7 @@ summary(daily$consumption_power)
 
     -   How many weeks of data are contained in the data set?
 
-    **53 weeks**
+    **313 weeks**
 
     -   How much did consumption as a percentage change for each category?
 
@@ -73,7 +74,8 @@ summary(daily$consumption_power)
 
 ```{r}
 #number of weeks in daily:
-n_distinct(week(daily$date))
+daily$day_of_week <- wday(daily$date)
+sum(daily$day_of_week == 7)
 #how much consumption changed as a percentage for each category:
 ((tail(daily$consumption_small, 1, na.rm = TRUE) - daily$consumption_small[366]) / daily$consumption_small[366]) * 100 #row 366 is first column with non-na value
 ((tail(daily$consumption_industry, 1, na.rm = TRUE) - daily$consumption_industry[1]) / daily$consumption_industry[1]) * 100
@@ -85,9 +87,10 @@ daily$year <- format(daily$date, "%Y")
 highest_consump <- aggregate(consumption_power ~ month + year, data = daily, FUN = sum) |> arrange(desc(consumption_power))
 head(highest_consump)
 
+
 ```
 
--   DONE The original paper aggregated the data to monthly means for each consumption type in `daily` and the `Price` column of `gas` to produce the following image:<br/> ![Original consumption by month graph](proj1fig1.png)<br/> Produce plots that show the same information that is presented in this plot. Your plots do not have to have the same colors or markings, but we should be able to use them to compare the trends for the three price variables.
+-   (MONICA) The original paper aggregated the data to monthly means for each consumption type in `daily` and the `Price` column of `gas` to produce the following image:<br/> ![Original consumption by month graph](proj1fig1.png)<br/> Produce plots that show the same information that is presented in this plot. Your plots do not have to have the same colors or markings, but we should be able to use them to compare the trends for the three price variables.
 
 ```{r}
 gas <- read_csv( "./data/dutch_ttf_natural_gas.csv", show_col_types = FALSE)
@@ -126,7 +129,7 @@ plot_grid(plot2, plot1, nrow = 2, align = "v")
 
 ```
 
--   DONE Write a predicate function that returns true if any value in vector is missing. Use this function to find columns with missing values in the `daily` column. Create a plot or table that shows how often patterns of missingness occur: are all of the missing values in the same rows or are the various columns missing data in different ways?
+-   (FIONA) Write a predicate function that returns true if any value in vector is missing. Use this function to find columns with missing values in the `daily` column. Create a plot or table that shows how often patterns of missingness occur: are all of the missing values in the same rows or are the various columns missing data in different ways?
 
 ```{r}
 #predicate function
@@ -185,7 +188,7 @@ ggplot(plot_data, aes(x = column, y = proportion, fill = proportion > 0)) +
 After some sorting through data, we can see that there is indeed a pattern to which rows have missing values across these six columns. Columns price_industry_idx, price_households_idx and consumption_small all have 365 missing values in total and they all come from rows 1-365. Columns consumption_industry and consumption_power both only have 1 missing value and for both columns, that missing value is in row 2052. Lastly, column wages has 89 missing values in rows 1-89. To show this information graphically, we created a bar graph with the bars representing the proportion of missing values within each column. Here, we again see how there are columns that have the same propotion of missing values and therefore reinforcing that there are patterns within the data.
 ```
 
--   DONE Limit the `gas` table to days where the price exceeded the yearly median. Use the concept of circular means to compute the average day of the year when price exceeds the yearly median price. The `yday` function will likely be useful here.
+-   (FIONA) Limit the `gas` table to days where the price exceeded the yearly median. Use the concept of circular means to compute the average day of the year when price exceeds the yearly median price. The `yday` function will likely be useful here.
 
 ```{r}
 #making the dates in the "Date" column understood--organizing by month/day/year
@@ -240,7 +243,7 @@ ggplot(daily, aes(x = Date, y = consumption_small, color = factor(holiday))) +
 
 -   (KAELYN) According to the paper, the gas crisis occurred between September 2021 until October 2022. Compare this period with the periods before and after on household and industrial consumption. Write a paragraph explaining your findings.
 -   (KAELYN) Explore the [documentation for ggplot](https://ggplot2.tidyverse.org/). Select one geometery and one `stat_` function we have not used before or use an option to a previously used geometry/stat with a new option. Write a short paragraph explaining what the plots show.
--   DONE Investigate solar radiation's marginal distribution and also it's relationship with temperature.
+-   (FIONA) Investigate solar radiation's marginal distribution and also it's relationship with temperature.
 
 ```{r}
 #to understand the data a bit more before making graphs
@@ -266,4 +269,4 @@ ggplot(daily, aes(x = solar_radiation, y = temperature)) +
 
 ## Statement of Effort
 
-(TOGETHER) Complete a brief statement of effort explaining the contribution of each team member.
+Complete a brief statement of effort explaining the contribution of each team member.
