@@ -89,6 +89,42 @@ head(highest_consump)
 ```
 
 -   (MONICA) The original paper aggregated the data to monthly means for each consumption type in `daily` and the `Price` column of `gas` to produce the following image:<br/> ![Original consumption by month graph](proj1fig1.png)<br/> Produce plots that show the same information that is presented in this plot. Your plots do not have to have the same colors or markings, but we should be able to use them to compare the trends for the three price variables.
+```{r}
+
+#price industry: daily --> price_industry_idx
+#price household: daily --> price_households_idx
+#natural gas price: gas --> Price?
+
+#BLUE --> GAS PRICE
+prices <- subset(gas, Date <= "2022-12-31")
+prices <- subset(prices, Date >= "2019-01-01")
+
+ggplot(prices, aes(x=Date)) +
+  geom_line(aes(y=Price), color = "blue") + 
+  scale_x_date(breaks = scales::pretty_breaks(n = 10), date_labels = "%b %Y") +
+  scale_y_continuous(breaks = seq(0, 375, by = 25)) + 
+  labs(x = "Date",
+       y = "Natural gas price TTF (€MWh−1)")
+
+#ORANGE --> PRICE INDEX HOUSEHOLDS VS INDUSTRY
+monthly_means <- daily |>
+  group_by(month, year) |>
+  summarize(mean_households = mean(price_households_idx),
+            mean_industry = mean(price_industry_idx))
+monthly_means$Date <- make_date(year=monthly_means$year, month=monthly_means$month)
+monthly_means <- subset(monthly_means, Date <= "2022-12-31")
+monthly_means <- subset(monthly_means, Date >= "2019-01-01")
+
+ggplot(monthly_means, aes(x=Date)) +
+  geom_line(aes(y=mean_households), color = "orange") +
+  geom_line(aes(y=mean_industry), color = "orange", linetype="dashed") +
+  ylim(0, 1500) + 
+  labs(x = "Date",
+       y = "Natural gas price indices")
+
+
+
+```
 - (FIONA)  Write a predicate function that returns true if any value in vector is missing. Use this function to find columns with missing values in the `daily` column. Create a plot or table that shows how often patterns of missingness occur: are all of the missing values in the same rows or are the various columns missing data in different ways?
 ```{r}
 #predicate function
