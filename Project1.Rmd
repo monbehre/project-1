@@ -23,7 +23,7 @@ Your job in this project falls into two categories:
 
 ## Tasks
 
--  DONE Load two files. To work in the console, use the `Session -> Set Working Directory -> To Source File Location`.
+-   DONE Load two files. To work in the console, use the `Session -> Set Working Directory -> To Source File Location`.
     -   Call the first table `daily`: "./data/natural_gas_germany_daily.csv"
     -   Call the second table `gas`: "./data/dutch_ttf_natural_gas.csv". Be sure to properly import the `Date` column.
     -   Demonstrate that these have been loaded by showing the number of rows and columns in each table.
@@ -41,7 +41,7 @@ nrow(gas)
 ncol(gas)
 ```
 
--  DONE The data in `daily` are collected over days, with information on different types of natural gas consumption (`consumption_small`, `consumption_industry`, `consumption_power`). Provide summaries of typical values for each of these three types of consumption.
+-   DONE The data in `daily` are collected over days, with information on different types of natural gas consumption (`consumption_small`, `consumption_industry`, `consumption_power`). Provide summaries of typical values for each of these three types of consumption.
 
 ```{r}
 summary(daily$consumption_small)
@@ -85,28 +85,26 @@ daily$year <- format(daily$date, "%Y")
 highest_consump <- aggregate(consumption_power ~ month + year, data = daily, FUN = sum) |> arrange(desc(consumption_power))
 head(highest_consump)
 
-
 ```
 
--   (MONICA) The original paper aggregated the data to monthly means for each consumption type in `daily` and the `Price` column of `gas` to produce the following image:<br/> ![Original consumption by month graph](proj1fig1.png)<br/> Produce plots that show the same information that is presented in this plot. Your plots do not have to have the same colors or markings, but we should be able to use them to compare the trends for the three price variables.
+-   DONE The original paper aggregated the data to monthly means for each consumption type in `daily` and the `Price` column of `gas` to produce the following image:<br/> ![Original consumption by month graph](proj1fig1.png)<br/> Produce plots that show the same information that is presented in this plot. Your plots do not have to have the same colors or markings, but we should be able to use them to compare the trends for the three price variables.
+
 ```{r}
+gas <- read_csv( "./data/dutch_ttf_natural_gas.csv", show_col_types = FALSE)
+gas$Date <- as.Date(gas$Date, format = "%m/%d/%Y")
 
-#price industry: daily --> price_industry_idx
-#price household: daily --> price_households_idx
-#natural gas price: gas --> Price?
-
-#BLUE --> GAS PRICE
 prices <- subset(gas, Date <= "2022-12-31")
 prices <- subset(prices, Date >= "2019-01-01")
 
-ggplot(prices, aes(x=Date)) +
+#gas:
+plot1 <- ggplot(prices, aes(x=Date)) +
   geom_line(aes(y=Price), color = "blue") + 
   scale_x_date(breaks = scales::pretty_breaks(n = 10), date_labels = "%b %Y") +
   scale_y_continuous(breaks = seq(0, 375, by = 25)) + 
   labs(x = "Date",
        y = "Natural gas price TTF (€MWh−1)")
 
-#ORANGE --> PRICE INDEX HOUSEHOLDS VS INDUSTRY
+#household and industry index prices:
 monthly_means <- daily |>
   group_by(month, year) |>
   summarize(mean_households = mean(price_households_idx),
@@ -115,17 +113,21 @@ monthly_means$Date <- make_date(year=monthly_means$year, month=monthly_means$mon
 monthly_means <- subset(monthly_means, Date <= "2022-12-31")
 monthly_means <- subset(monthly_means, Date >= "2019-01-01")
 
-ggplot(monthly_means, aes(x=Date)) +
+plot2 <- ggplot(monthly_means, aes(x=Date)) +
   geom_line(aes(y=mean_households), color = "orange") +
   geom_line(aes(y=mean_industry), color = "orange", linetype="dashed") +
+  scale_x_date(breaks = scales::pretty_breaks(n = 10), date_labels = "%b %Y") +
   ylim(0, 1500) + 
   labs(x = "Date",
        y = "Natural gas price indices")
 
+plot_grid(plot2, plot1, nrow = 2, align = "v")
 
 
 ```
-- (FIONA)  Write a predicate function that returns true if any value in vector is missing. Use this function to find columns with missing values in the `daily` column. Create a plot or table that shows how often patterns of missingness occur: are all of the missing values in the same rows or are the various columns missing data in different ways?
+
+-   DONE Write a predicate function that returns true if any value in vector is missing. Use this function to find columns with missing values in the `daily` column. Create a plot or table that shows how often patterns of missingness occur: are all of the missing values in the same rows or are the various columns missing data in different ways?
+
 ```{r}
 #predicate function
 missing.in.vector <- function(x) {
@@ -137,6 +139,7 @@ columns_with_missing <- sapply(daily, missing.in.vector)
 result_table <- data.frame(Column = names(columns_with_missing), Missing = columns_with_missing)
 result_table
 ```
+
 ```{r}
 #now that we know which columns have missing values, we want to see how many missing values they each have to start figuring out what a possible trend could be.
 for (col in names(daily)[columns_with_missing]) {
@@ -144,6 +147,7 @@ for (col in names(daily)[columns_with_missing]) {
   cat("Column:", col, "- Missing Count:", missing_count, "\n")
 }
 ```
+
 ```{r}
 #now that we know how many missing values are in each column and can see that some columns have the same amount of missing values, we want to see if those columns have missing values in the same rows so that we can concretely say that there is a pattern.
 summarize_rows_with_missing <- function(column_name) {
@@ -158,6 +162,7 @@ for (col in names(daily)[columns_with_missing]) {
   summarize_rows_with_missing(col)
 }
 ```
+
 ```{r}
 missing_columns <- names(daily)[columns_with_missing]
 
@@ -175,10 +180,12 @@ ggplot(plot_data, aes(x = column, y = proportion, fill = proportion > 0)) +
        y = "Proportion Missing") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8))
 ```
-```
+
+```         
 After some sorting through data, we can see that there is indeed a pattern to which rows have missing values across these six columns. Columns price_industry_idx, price_households_idx and consumption_small all have 365 missing values in total and they all come from rows 1-365. Columns consumption_industry and consumption_power both only have 1 missing value and for both columns, that missing value is in row 2052. Lastly, column wages has 89 missing values in rows 1-89. To show this information graphically, we created a bar graph with the bars representing the proportion of missing values within each column. Here, we again see how there are columns that have the same propotion of missing values and therefore reinforcing that there are patterns within the data.
 ```
--   (FIONA) Limit the `gas` table to days where the price exceeded the yearly median. Use the concept of circular means to compute the average day of the year when price exceeds the yearly median price. The `yday` function will likely be useful here.
+
+-   DONE Limit the `gas` table to days where the price exceeded the yearly median. Use the concept of circular means to compute the average day of the year when price exceeds the yearly median price. The `yday` function will likely be useful here.
 
 ```{r}
 #making the dates in the "Date" column understood--organizing by month/day/year
@@ -199,7 +206,7 @@ avg_day_of_year
 
 ```
 
--  (XIAOHAN) Using the cut function, create two nominal variables from quantitative data in the `daily` dataset. Use these groups to summarize the data. Use arrange to show the smallest or largest values in these comparisons.
+-   (XIAOHAN) Using the cut function, create two nominal variables from quantitative data in the `daily` dataset. Use these groups to summarize the data. Use arrange to show the smallest or largest values in these comparisons.
 -   (XIAOHAN) There are several variables that pull out data by different industry (the `_idx` columns). Create a table for these columns using `select` and the `ends_with` function. Provide two different plots that show of the relations between these variables (you do not need to have all variables in each plot).
 
 ## Objectives
@@ -233,7 +240,7 @@ ggplot(daily, aes(x = Date, y = consumption_small, color = factor(holiday))) +
 
 -   (KAELYN) According to the paper, the gas crisis occurred between September 2021 until October 2022. Compare this period with the periods before and after on household and industrial consumption. Write a paragraph explaining your findings.
 -   (KAELYN) Explore the [documentation for ggplot](https://ggplot2.tidyverse.org/). Select one geometery and one `stat_` function we have not used before or use an option to a previously used geometry/stat with a new option. Write a short paragraph explaining what the plots show.
--  (FIONA) Investigate solar radiation's marginal distribution and also it's relationship with temperature.
+-   DONE Investigate solar radiation's marginal distribution and also it's relationship with temperature.
 
 ```{r}
 #to understand the data a bit more before making graphs
@@ -252,10 +259,11 @@ ggplot(daily, aes(x = solar_radiation, y = temperature)) +
        x = "Solar Radiation", y = "Temperature") +
   theme_minimal()
 ```
+
 -   (XIAOHAN) Use `group_by` to summarize by a new feature of this data set not otherwise discussed in the tasks or objectives. What have you learned with these investigation?
 -   (TOGETHER) Based on your exploration of the data, suggest three questions that could be asked from these data or additional data that you can imagine. Be sure to explain why the previous plots or calculations indicates that this would be an interesting our useful exploration.
 -   (TOGETHER) Write an abstract for your project. Briefly explain what you did, what you found, and why a potential reader should be interested in your research.
 
 ## Statement of Effort
 
-Complete a brief statement of effort explaining the contribution of each team member.
+(TOGETHER) Complete a brief statement of effort explaining the contribution of each team member.
