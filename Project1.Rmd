@@ -1,7 +1,9 @@
 ---
 title: "Project 1"
 author: "Monica Behrend, monbehre"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -105,7 +107,7 @@ plot1 <- ggplot(prices, aes(x=Date)) +
   scale_x_date(breaks = scales::pretty_breaks(n = 10), date_labels = "%b %Y") +
   scale_y_continuous(breaks = seq(0, 375, by = 25)) + 
   labs(x = "Date",
-       y = "Natural gas price TTF (€MWh−1)")
+       y = "Natural gas price TTF (€MWh-1)")
 
 #household and industry index prices:
 monthly_means <- daily |>
@@ -210,7 +212,48 @@ avg_day_of_year
 ```
 
 -   (XIAOHAN) Using the cut function, create two nominal variables from quantitative data in the `daily` dataset. Use these groups to summarize the data. Use arrange to show the smallest or largest values in these comparisons.
+```{r}
+daily$consumption_small_group <- cut(daily$consumption_small,
+                                     breaks = quantile(daily$consumption_small, probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
+                                     labels = c("Low", "Medium", "High"),
+                                     include.lowest = TRUE)
+
+daily$consumption_power_group <- cut(daily$consumption_power,
+                                     breaks = quantile(daily$consumption_power, 
+                                                       probs = c(0, 0.25, 0.5, 0.75, 1), na.rm = TRUE),
+                                     labels = c("Q1", "Q2", "Q3", "Q4"),
+                                     include.lowest = TRUE)
+
+summary_by_small_group <- aggregate(consumption_industry ~ consumption_small_group, 
+                                    data = daily, mean, na.rm = TRUE)
+
+arranged_summary_by_small_group <- arrange(summary_by_small_group, desc(consumption_industry))
+
+summary_by_power_group <- aggregate(consumption_small ~ consumption_power_group, 
+                                    data = daily, mean, na.rm = TRUE)
+
+arranged_summary_by_power_group <- arrange(summary_by_power_group, consumption_small)
+
+print(arranged_summary_by_small_group)
+print(arranged_summary_by_power_group)
+```
+
+
 -   (XIAOHAN) There are several variables that pull out data by different industry (the `_idx` columns). Create a table for these columns using `select` and the `ends_with` function. Provide two different plots that show of the relations between these variables (you do not need to have all variables in each plot).
+```{r}
+industry_data <- select(daily, ends_with("_idx"))
+
+ggplot(industry_data, aes(x = manufacturing_idx, y = hospitality_idx)) +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Manufacturing Index", y = "Hospitality Index", title = "Relationship between Two Industries")
+
+pairs(industry_data,
+      main = "Pairs Plot of Industry Index Variables",
+      pch = 20,  
+      col = rgb(0, 0, 1, 0.5))  
+```
+
 
 ## Objectives
 
@@ -264,6 +307,31 @@ ggplot(daily, aes(x = solar_radiation, y = temperature)) +
 ```
 
 -   (XIAOHAN) Use `group_by` to summarize by a new feature of this data set not otherwise discussed in the tasks or objectives. What have you learned with these investigation?
+```{r}
+daily$solar_radiation_category <- cut(x = daily$solar_radiation, 
+                                      breaks = quantile(daily$solar_radiation, 
+                                                        probs = c(0, 1/3, 2/3, 1), na.rm = TRUE), 
+                                      include.lowest = TRUE, 
+                                      labels = c('Low', 'Medium', 'High'))
+
+grouped_data <- group_by(daily, solar_radiation_category)
+
+summarized_data <- summarize(grouped_data, 
+                             avg_cons_small = mean(consumption_small, na.rm = TRUE), 
+                             avg_cons_indus = mean(consumption_industry, na.rm = TRUE), 
+                             avg_cons_power = mean(consumption_power, na.rm = TRUE))
+
+print(summarized_data)
+```
+
+The average consumption for small consumers is highest in the low solar radiation category and significantly decreases as solar radiation increases. This pattern may indicate that on days with stronger solar radiation, small consumers may prefer to use solar power or other alternative sources of energy instead of natural gas, thereby reducing natural gas consumption.
+
+Industrial consumption is also highest in the low solar radiation category, but the decreasing trend is less pronounced compared to small consumers. This might reflect a more stable energy demand in the industrial sector that is less influenced by changes in solar radiation, or it could suggest that the industry has a more diversified energy mix.
+
+Average consumption for power consumption is highest when solar radiation is low and lowest when solar radiation is high. This could imply that the power sector is able to rely more on solar energy production during times of high solar radiation, thus reducing dependency on natural gas.
+
+From this investigation, we can speculate that natural gas consumption may be influenced by the level of solar radiation, especially among small consumers and the power sector. Higher levels of solar radiation tend to coincide with lower levels of natural gas consumption, possibly due to an increased use of renewable energy sources like solar power. However, this effect seems less significant for industrial consumption, possibly due to the stability of energy demands in that sector or due to a more diversified use of different forms of energy.
+
 -   (TOGETHER) Based on your exploration of the data, suggest three questions that could be asked from these data or additional data that you can imagine. Be sure to explain why the previous plots or calculations indicates that this would be an interesting our useful exploration.
 -   (TOGETHER) Write an abstract for your project. Briefly explain what you did, what you found, and why a potential reader should be interested in your research.
 
