@@ -319,32 +319,29 @@ ggplot(daily, aes(x = solar_radiation, y = temperature)) +
 
 -   (XIAOHAN) Use `group_by` to summarize by a new feature of this data set not otherwise discussed in the tasks or objectives. What have you learned with these investigation?
 ```{r}
-daily$heating_profiles_category <- cut(daily$heating_profiles,
-                                       breaks=quantile(daily$heating_profiles, 
-                                                       probs = c(0, 1/3, 2/3, 1), na.rm = TRUE),
-                                       labels=c("Low", "Medium", "High"),
-                                       include.lowest=TRUE)
+daily$temperature_category <- cut(x = daily$temperature, 
+                                      breaks = quantile(daily$temperature, 
+                                                        probs = c(0, 1/3, 2/3, 1), na.rm = TRUE), 
+                                      include.lowest = TRUE, 
+                                      labels = c('Low', 'Medium', 'High'))
 
-avg_consumption_small <- aggregate(consumption_small ~ heating_profiles_category, data=daily, FUN=mean, na.rm=TRUE)
+grouped_data <- group_by(daily, temperature_category)
 
-avg_consumption_industry <- aggregate(consumption_industry ~ heating_profiles_category, data=daily, FUN=mean, na.rm=TRUE)
+summarized_data <- summarize(grouped_data, 
+                             avg_cons_small = mean(consumption_small, na.rm = TRUE), 
+                             avg_cons_indus = mean(consumption_industry, na.rm = TRUE), 
+                             avg_cons_power = mean(consumption_power, na.rm = TRUE))
 
-avg_consumption_power <- aggregate(consumption_power ~ heating_profiles_category, data=daily, FUN=mean, na.rm=TRUE)
-
-combined_results <- data.frame(
-  Heating_Profile_Category = avg_consumption_small$heating_profiles_category,
-  AvgConsSmall = avg_consumption_small$consumption_small,
-  AvgConsIndus = avg_consumption_industry$consumption_industry,
-  AvgConsPower=avg_consumption_power$consumption_power
-)
-
-print(combined_results)
+print(summarized_data)
 ```
 
 What I have learned:
-1. Positive correlation: there is a clear trend showing that as the heating profile category increases from "Low" to "High," there is a corresponding increase in energy consumption across small consumption, industry consumption, and power consumption.
-2. Industry Stability: The industry consumption shows a relatively stable consumption pattern compared to small consumption and power consumption, suggesting that industrial energy use may be less influenced by the factors driving the heating profiles, such as weather conditions or heating efficiency.
-3.Significant Increase in Power Consumption: The power consumption displays the most significant increase in consumption with higher heating profiles, indicating that electricity demand for heating is greatly influenced by the heating requirements.
+
+1. Increased Energy Use in Colder Weather: The highest average consumption across all sectors during low temperatures likely reflects increased heating requirements.
+
+2. Stable Industrial Consumption: Industrial consumption changes less dramatically across temperature ranges, which may indicate that industrial operations maintain a relatively constant energy use, regardless of weather conditions.
+
+3. Reduced Energy Use in Warmer Weather: The noticeable decrease in energy consumption for small consumption and power consumption as temperatures rise suggests that there may be less reliance on energy-intensive heating systems, and possibly more efficient cooling systems or less need for active cooling.
 
 -   (TOGETHER) Based on your exploration of the data, suggest three questions that could be asked from these data or additional data that you can imagine. Be sure to explain why the previous plots or calculations indicates that this would be an interesting our useful exploration.
 -   (TOGETHER) Write an abstract for your project. Briefly explain what you did, what you found, and why a potential reader should be interested in your research.
