@@ -243,10 +243,21 @@ print(arranged_summary_by_power_group)
 ```{r}
 industry_data <- select(daily, ends_with("_idx"))
 
-ggplot(industry_data, aes(x = manufacturing_idx, y = hospitality_idx)) +
-  geom_point() +
+idx_data <- daily |>
+  select(Date, ends_with("_idx"))
+
+idx_data_long <- pivot_longer(idx_data, 
+                              cols = -Date, 
+                              names_to = "IndexType", 
+                              values_to = "Value")
+
+ggplot(idx_data_long, aes(x = IndexType, y = Value, fill = IndexType)) +
+  geom_violin(trim = FALSE) + 
+  labs(title = "Violin Plot of Industry Indices", 
+       x = "Index Type", 
+       y = "Index Value") +
   theme_minimal() +
-  labs(x = "Manufacturing Index", y = "Hospitality Index", title = "Relationship between Two Industries")
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
 pairs(industry_data,
       main = "Pairs Plot of Industry Index Variables",
