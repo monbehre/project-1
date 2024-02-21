@@ -345,6 +345,9 @@ From this investigation, we can speculate that natural gas consumption may be in
 
 -   (TOGETHER) Based on your exploration of the data, suggest three questions that could be asked from these data or additional data that you can imagine. Be sure to explain why the previous plots or calculations indicates that this would be an interesting our useful exploration.
 -   (TOGETHER) Write an abstract for your project. Briefly explain what you did, what you found, and why a potential reader should be interested in your research.
+```
+This project aimed to analyze the effects of the energy crisis in Europe, specifically in Germany, in the years after Russia limited its gas exports and how German gas consumers responded to/were impacted by those effects. Although there were a vast amount of tests run on this data, some key takeaway results were that there was a prominent increase in gas prices in 2021 when Russia curbed their gas exports to Europe and that during the crisis, energy consumption decreased. The results of the analysis are significant and should be of interest to potential readers as they show a big picture of how closely different variables are related and how one change in an economic good can impact the daily lives of consumers, as they adjust to new prices and limited availability of that good. Thus, in a broad sense, this project, and the tests that were run in it, can be applied to a change in any consumer good price/availability.
+```
 
 ## Statement of Effort
 
