@@ -263,6 +263,8 @@ print(arranged_summary_by_power_group)
 daily$Date = daily$date
 industry_data <- select(daily, ends_with("_idx"))
 
+print(industry_data)
+
 idx_data <- daily |>
   select(Date, ends_with("_idx"))
 
